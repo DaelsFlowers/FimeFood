@@ -15,9 +15,7 @@ import Hamburgesas from "../../assets/FHamburgesa.jpg"
 import MoreFood from "../../assets/FMore.jpg"
 
 
-
-const FoodView = () => {
-
+export default function FoodView(tag, { navigation }) {
     return (
 
         <SafeAreaView style={styles.View}>
@@ -254,6 +252,3 @@ const styles = StyleSheet.create({
         marginTop: 3
     },
 });
-
-
-export default FoodView

@@ -1,12 +1,92 @@
-import { View, Text, Image, StyleSheet, SafeAreaView, TextInput } from 'react-native'
-import React from 'react'
+import { View, Text, Image, StyleSheet, SafeAreaView, TextInput, Button } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import firebase from "firebase/app"
+import "firebase/auth"
+import "firebase/firestore"
 //bannerTop
 import TopBanner from "../../assets/Top-set.png"
 import PerfilImg from "../../assets/PerfilImg.png"
 
 
-const Perfil = () => {
+export default function Perfil({ navigation }) {
+    const [name, setName] = useState()
+    const [email, setEmail] = useState()
+    const [password, setPassword] = useState()
+
+
+    const [values, setValues] = useState({
+        name: "",
+        email: "",
+        password: "",
+    })
+
+    function handleChange(text, eventName) {
+        console.log(values);
+        setValues(prev => {
+            return {
+                ...prev,
+                [eventName]: text
+            }
+        })
+    }
+
+    const user = firebase.auth().currentUser;
+    const firestore = firebase.firestore;
+
+    async function loadData() {
+        try {
+            const docRef = firestore().collection("Users").doc(user.uid).get();
+            setName((await docRef).data().name)
+            setEmail((await docRef).data().email)
+            setPassword((await docRef).data().password)
+        } catch (error) {
+
+        }
+    }
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    function UpdateUser() {
+        const { name, email, password } = values
+
+        user.updatePassword(password).then(() => {
+            user.updateEmail(email)
+                .then(() => {
+                    firestore().collection("Users").doc(user.uid).update({
+                        name: name,
+                        email: email,
+                        password: password,
+                        password2: password,
+                    })
+                    alert("SE ACTUALIZO CORRECTAMENTE");
+                    firebase.auth().signOut()
+                })
+                .catch((error) => {
+                    alert(error.message);
+                    console.log(error.message)
+                })
+        }).catch((error) => {
+            alert(error.message);
+            console.log(error.message)
+        });
+    }
+    function DeleteUser() {
+        firestore().collection("Users").doc(user.uid).delete().then(() => {
+            user.delete().then(() => {
+                alert("HASTA LA PROXIMA");
+            }).catch((error) => {
+                alert(error.message);
+                console.log(error.message)
+            });
+        }).catch((error) => {
+            calert(error.message);
+            console.log(error.message)
+        });
+
+    }
+
 
     return (
 
@@ -33,20 +113,21 @@ const Perfil = () => {
                     />
                     <Text style={styles.Label}>NOMBRE</Text>
                     <View style={styles.input} >
-                        <TextInput placeholder="NOMBRE" style={styles.inputIn} />
+                        <TextInput placeholder={name} style={styles.inputIn} onChangeText={text => handleChange(text, "name")} />
                     </View>
                     <Text style={styles.Label}>CORREO</Text>
                     <View style={styles.input} >
-                        <TextInput placeholder="CORREO" style={styles.inputIn} />
+                        <TextInput placeholder={email} style={styles.inputIn} onChangeText={text => handleChange(text, "email")} />
                     </View>
 
                     <Text style={styles.Label}>CONTRASEÑA</Text>
                     <View style={styles.input} >
-                        <TextInput placeholder="CONTRASEÑA" style={styles.inputIn} />
+                        <TextInput placeholder={password} style={styles.inputIn} onChangeText={text => handleChange(text, "password")} />
                     </View>
                     <View style={styles.buttonRegister} >
-                        <Text style={{ color: "#fff", fontSize: 18, textAlign: "center", marginTop: 5 }} >CAMBIAR DATOS</Text>
+                        <Button title="ACTUALIZAR DATOS" color="#1e3c89" onPress={() => UpdateUser()} />
                     </View>
+
                     <View>
                         <BouncyCheckbox
                             size={25}
@@ -58,17 +139,10 @@ const Perfil = () => {
                         />
                     </View>
                     <View style={styles.buttonCancel} >
-                        <Text style={{ color: "#fff", fontSize: 16, textAlign: "center", marginTop: 8 }} >BORRAR CUENTA</Text>
+                        <Button title="BORRAR CUENTA" color="#891e1e" onPress={() => DeleteUser()} />
                     </View>
                 </View>
-
-
-
             </View>
-
-
-
-
         </SafeAreaView>
 
     )
@@ -181,7 +255,3 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     }
 });
-
-
-
-export default Perfil

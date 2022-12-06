@@ -1,30 +1,26 @@
 import { View, Text, Image, StyleSheet, SafeAreaView, TextInput, TouchableHighlight, ScrollView, Button, Alert, FlatList, TouchableOpacity, Linking, Platform, } from 'react-native'
 import React, { useState, useEffect } from 'react'
+import firebase from "firebase/app"
+import "firebase/auth"
+import "firebase/firestore"
 
 //bannerTop
 import TopBanner from "../../assets/Top-set.png"
 
-//Icons
 import WhatsappIcon from "../../assets/whatsappicon.png"
 //Food Imagens
-import Hamburgesas from "../../assets/FHamburgesa.jpg"
-import MoreFood from "../../assets/FMore.jpg"
-import Pizza from "../../assets/FPizza.jpg"
-import Postres from "../../assets/FPostres.jpg"
-import Refrescos from "../../assets/FRefrescos.jpg"
-import Tacos from "../../assets/FTacos.jpg"
+import ImagenPref from "../../assets/FPizza.jpg"
 
 
-import firebase from "firebase/app"
-import "firebase/auth"
-import "firebase/firestore"
-export default function NewProducts({ navigation }) {
+
+export default function PizzaScreen({ navigation }) {
+
     const auth = firebase.auth;
     const firestore = firebase.firestore;
     const [productsList, setProductsList] = useState([]);
     async function loadData() {
         try {
-            firestore().collection("Productos").get().then((query) => {
+            firestore().collection("Productos").where("categoria", "==", "PIZZA").get().then((query) => {
                 const ProductList = []
                 query.forEach(doc => {
                     ProductList.push(doc.data())
@@ -59,7 +55,6 @@ export default function NewProducts({ navigation }) {
     return (
 
         <SafeAreaView style={styles.View}>
-
             <View style={styles.TopView}>
                 {/* <View style={styles.TopViewAux}></View> */}
                 <Image
@@ -67,31 +62,25 @@ export default function NewProducts({ navigation }) {
                     source={TopBanner}
                 />
             </View>
-
-
             <View style={styles.ContentView}>
                 {/* BUSCADOR */}
                 <View>
-                    <Text style={{ textAlign: "center", fontSize: 22, fontWeight: 'bold' }}>NUEVOS PRODUCTOS</Text>
+                    <Text style={{ textAlign: "center", fontSize: 22, fontWeight: 'bold' }}>PIZZA</Text>
                 </View>
 
 
                 {/* products */}
                 <ScrollView>
-                    <View style={{ display: 'flex', flexDirection: 'column', flex: 1, marginTop: 25 }}>
-                        <FlatList data={productsList}
-                            renderItem={({ item }) =>
+                    <FlatList data={productsList}
+                        renderItem={({ item }) =>
+                            <View style={{ display: 'flex', flexDirection: 'column', flex: 1, marginTop: 25 }}>
 
                                 <View style={styles.Card}>
                                     <View style={styles.CardImagen}>
-                                        {
-                                            item.categoria === "POSTRES" ? <Image style={styles.CardImagenImg} source={Postres} /> :
-                                                (item.categoria === "BEBIDAS" ? <Image style={styles.CardImagenImg} source={Refrescos} /> :
-                                                    (item.categoria === "TACOS" ? <Image style={styles.CardImagenImg} source={Tacos} /> :
-                                                        (item.categoria === "PIZZA" ? <Image style={styles.CardImagenImg} source={Pizza} /> :
-                                                            (item.categoria === "HAMBURGESAS" ? <Image style={styles.CardImagenImg} source={Hamburgesas} /> : <Image style={styles.CardImagenImg} source={MoreFood} />))))
-                                        }
-
+                                        <Image
+                                            style={styles.CardImagenImg}
+                                            source={ImagenPref}
+                                        />
                                     </View>
                                     <View style={styles.CardInfo}>
                                         <Text style={styles.ProductName}>{item.name}</Text>
@@ -117,22 +106,14 @@ export default function NewProducts({ navigation }) {
                                                 <Text style={styles.ProductWhatsText} >ENVIAR WHATSAPP</Text>
                                             </View>
                                         </TouchableOpacity>
-
                                     </View>
                                 </View>
 
-                            } keyExtractor={(item, index) => index.toString()} />
-
-
-                    </View>
+                            </View>
+                        } keyExtractor={(item, index) => index.toString()} />
                 </ScrollView>
             </View>
-
-
-
-
         </SafeAreaView>
-
     )
 }
 
@@ -254,7 +235,7 @@ const styles = StyleSheet.create({
     },
     ProductSeller: {
         fontWeight: '500',
-        fontSize: 10
+        fontSize: 8
     },
     ProductoHorario: {
         fontWeight: '500',

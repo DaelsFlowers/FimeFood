@@ -1,12 +1,62 @@
-import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TextInput } from 'react-native'
+import { View, Text, Image, StyleSheet, Button, SafeAreaView, TextInput, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { Picker } from '@react-native-picker/picker'
+import firebase from "firebase/app"
+import "firebase/auth"
+import "firebase/firestore"
 
 import TopBanner from "../assets/Top-login.png"
 import BottonBanner from "../assets/botton-login.png"
 
-const RegisterScreen = () => {
-    const [rol, setRol] = useState();
+export default function RegisterScreen({ navigation }) {
+    const auth = firebase.auth;
+    const firestore = firebase.firestore;
+
+    const [values, setValues] = useState({
+        name: "",
+        email: "",
+        password: "",
+        password2: "",
+        phone: ""
+    })
+
+    function handleChange(text, eventName) {
+
+        setValues(prev => {
+            return {
+                ...prev,
+                [eventName]: text
+            }
+        })
+    }
+
+    function Register() {
+        const { name, email, password, password2, phone } = values
+
+        if (password == password2) {
+            auth().createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    firestore().collection("Users").doc(auth().currentUser.uid).set({
+                        uid: auth().currentUser.uid,
+                        name,
+                        email,
+                        password,
+                        password2,
+                        phone
+                    })
+                    alert("CUENTA CREADA")
+                })
+                .catch((error) => {
+                    alert(error.message);
+                    console.log(error.message)
+                })
+        } else {
+            alert("LAS CONTRASEÑAS SON DIFERENTES")
+        }
+
+    }
+
+
     return (
 
         <SafeAreaView style={styles.View}>
@@ -18,50 +68,39 @@ const RegisterScreen = () => {
                     source={TopBanner}
                 />
             </View>
+
             <View style={styles.ContentView}>
-                <View style={styles.LoginView}>
-                    <Text style={{ textAlign: "center", fontSize: 24, marginTop: 10, }}>CREA UN PERFIL</Text>
+                <ScrollView>
+                    <View style={styles.LoginView}>
+                        <Text style={{ textAlign: "center", fontSize: 24, marginTop: 10, }}>CREA UN PERFIL</Text>
 
-                    <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>NOMBRE</Text>
-                    <TextInput style={styles.input}
-                        keyboardType="default" />
-                    <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CORREO</Text>
-                    <TextInput style={styles.input}
-                        keyboardType="default" />
-                    <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CONTRASEÑA</Text>
-                    <TextInput style={styles.input}
-                        keyboardType="default" />
-                    <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CONTRASEÑA</Text>
-                    <TextInput style={styles.input}
-                        keyboardType="default" />
-
-                    <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>TIPO DE PERFIL</Text>
-                    <View style={{ marginHorizontal: 25, borderColor: "#000", borderStyle: "solid", borderWidth: 1, marginTop: 5 }}>
-                        <Picker
-                            selectedValue={rol}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setRol(itemValue)
-                            }>
-                            <Picker.Item label="USUARIO" value="Usuario" />
-                            <Picker.Item label="VENDEDOR" value="Vendedor" />
-                        </Picker>
-                    </View>
-
-                    <View>
-                        <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>TELEFONO</Text>
+                        <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>NOMBRE</Text>
                         <TextInput style={styles.input}
-                            keyboardType="default" />
-                    </View>
-                    <View style={styles.buttonRegister} >
-                        <Text style={{ color: "#fff", fontSize: 16, textAlign: "center", marginTop: 8 }} >REGISTRARSE</Text>
-                    </View>
+                            keyboardType="default" onChangeText={text => handleChange(text, "name")} />
+                        <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CORREO</Text>
+                        <TextInput style={styles.input}
+                            keyboardType="default" onChangeText={text => handleChange(text, "email")} />
+                        <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CONTRASEÑA</Text>
+                        <TextInput style={styles.input}
+                            keyboardType="default" onChangeText={text => handleChange(text, "password")} />
+                        <Text style={{ marginLeft: 30, fontSize: 14, marginTop: 10, }}>CONTRASEÑA</Text>
+                        <TextInput style={styles.input}
+                            keyboardType="default" onChangeText={text => handleChange(text, "password2")} />
 
-                </View>
+                        <View style={styles.buttonRegister} >
+                            <Button title="REGISTRARSE" color="#1E8942" onPress={() => Register()} />
+                        </View>
+
+
+                    </View>
+                </ScrollView>
+
                 <View style={styles.RegisterView}>
                     <Text style={{ textAlign: "center", fontSize: 16, marginTop: 18, width: 300, alignSelf: "center" }}>YA CUENTRAS CON UN PERFIL?</Text>
                     <View style={styles.buttonLogin} >
-                        <Text style={{ color: "#fff", fontSize: 18, textAlign: "center", marginTop: 5 }} >INICIAR SESION</Text>
+                        <Button title="INICIAR SESION" color="#1e3c89" onPress={() => navigation.navigate("Login")} />
                     </View>
+
                 </View>
             </View>
 
@@ -180,4 +219,3 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     }
 });
-export default RegisterScreen

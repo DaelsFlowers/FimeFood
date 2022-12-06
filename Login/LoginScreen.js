@@ -1,10 +1,41 @@
-import { View, Text, Image, StyleSheet, SafeAreaView, TextInput } from 'react-native'
-import React from 'react'
+import { View, Text, Image, StyleSheet, SafeAreaView, TextInput, Button } from 'react-native'
+import React, { useState } from 'react'
+import firebase from "firebase/app"
+import "firebase/auth"
 
+
+//Imagen
 import TopBanner from "../assets/Top-login.png"
 import BottonBanner from "../assets/botton-login.png"
 
-const LoginScreen = () => {
+export default function LoginScreen({ navigation }) {
+
+    const [values, setValues] = useState({
+        email: "",
+        password: ""
+    })
+
+    function handleChange(text, eventName) {
+
+        setValues(prev => {
+            return {
+                ...prev,
+                [eventName]: text
+            }
+        })
+    }
+
+    function Login() {
+
+        const { email, password } = values
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(() => {
+            })
+            .catch((error) => {
+                alert(error.message);
+            })
+    }
 
     return (
 
@@ -22,19 +53,23 @@ const LoginScreen = () => {
                     <Text style={{ textAlign: "center", fontSize: 24, marginTop: 20, }}>INICIAR SESION</Text>
                     <Text style={{ marginLeft: 30, fontSize: 16, marginTop: 50, }}>CORREO</Text>
                     <TextInput style={styles.input}
-                        keyboardType="email-address" />
+                        keyboardType="default" onChangeText={text => handleChange(text, "email")} />
                     <Text style={{ marginLeft: 30, fontSize: 16, marginTop: 50, }}>CONTRASEÑA</Text>
                     <TextInput style={styles.input}
-                        keyboardType="email-address" />
+                        keyboardType='default' onChangeText={text => handleChange(text, "password")} secureTextEntry={true} />
                     <View style={styles.buttonLogin} >
-                        <Text style={{ color: "#fff", fontSize: 18, textAlign: "center", marginTop: 5 }} >INGRESAR</Text>
+                        <Button title="INGRESAR" color="#1E8942" onPress={() => Login()} />
                     </View>
+
+
                 </View>
                 <View style={styles.RegisterView}>
                     <Text style={{ textAlign: "center", fontSize: 20, marginTop: 18, width: 300, alignSelf: "center" }}>CREA UNA CUENTA PARA ACCEDER A LA APLICACION</Text>
+
                     <View style={styles.buttonRegister} >
-                        <Text style={{ color: "#fff", fontSize: 18, textAlign: "center", marginTop: 5 }} >REGISTRATE</Text>
+                        <Button title="REGISTRASE" color="#1e3c89" onPress={() => navigation.navigate("Register")} />
                     </View>
+
                 </View>
             </View>
 
@@ -154,5 +189,3 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     }
 });
-
-export default LoginScreen
