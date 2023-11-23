@@ -1,6 +1,6 @@
 # Fimefood Cliente
 
-![Fimefood Logo](assets/Top-set.png)
+![Fimefood Logo](assets/Top-login.png)
 
 ## Descripción General
 
